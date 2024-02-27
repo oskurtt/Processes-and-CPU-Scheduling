@@ -1,4 +1,8 @@
 import sys
+import random
+
+def next_exp():
+    
 
 def main():
     n = sys.argv[1]
