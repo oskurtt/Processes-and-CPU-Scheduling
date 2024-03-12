@@ -33,16 +33,19 @@ def main():
         print(f"ERROR: {e}")
     
     rand48.srand(seed)
+    if (ncpu > 1):
+        print(f"<<< PROJECT PART I -- process set (n={n}) with {ncpu} CPU-bound processes >>>")
+    else:
+        print(f"<<< PROJECT PART I -- process set (n={n}) with {ncpu} CPU-bound process >>>")
 
-    print(f"<<< PROJECT PART I -- process set (n={n}) with {ncpu} CPU-bound process >>>")
     for i in range(n):
         arrival_time = math.floor(next_exp(lamda, upper_bound))
         num_cpu_burst = math.ceil(rand48.drand()*64)
 
         if i < (n - ncpu):
-            print(f"I/O-bound process {alpahbet[i]}: arrival time {arrival_time}ms; {num_cpu_burst} CPU bursts:")
+            print(f"I/O-bound process {alpahbet[i]}: arrival time {arrival_time}ms; {num_cpu_burst} CPU bursts:", end ='')
         else:
-            print(f"CPU-bound process {alpahbet[i]}: arrival time {arrival_time}ms; {num_cpu_burst} CPU bursts:")
+            print(f"CPU-bound process {alpahbet[i]}: arrival time {arrival_time}ms; {num_cpu_burst} CPU bursts:", end = '')
 
         for j in range(num_cpu_burst):
             
@@ -55,10 +58,12 @@ def main():
                 cpu_burst_time = cpu_burst_time*4
                 io_burst_time = math.floor(io_burst_time/8)
             
+
+            print()
             if (j == num_cpu_burst - 1):
-                print(f"--> CPU burst {cpu_burst_time}ms")
+                print(f"--> CPU burst {cpu_burst_time}ms", end = '')
             else:
-                print(f"--> CPU burst {cpu_burst_time}ms --> I/O burst {io_burst_time}ms")
+                print(f"--> CPU burst {cpu_burst_time}ms --> I/O burst {io_burst_time}ms", end = '')
 
         print()
     
