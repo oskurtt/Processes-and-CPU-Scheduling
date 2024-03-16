@@ -34,7 +34,7 @@ def main():
         return 0
     
     rand48.srand(seed)
-    if (ncpu > 1 || ncpu == 0):
+    if (ncpu > 1 or ncpu == 0):
         print(f"<<< PROJECT PART I -- process set (n={n}) with {ncpu} CPU-bound processes >>>")
     else:
         print(f"<<< PROJECT PART I -- process set (n={n}) with {ncpu} CPU-bound process >>>")
