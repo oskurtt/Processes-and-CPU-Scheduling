@@ -31,6 +31,7 @@ def main():
 
     except Exception as e:
         print(f"ERROR: {e}")
+        return 0
     
     rand48.srand(seed)
     if (ncpu > 1):
