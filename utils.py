@@ -1,5 +1,4 @@
-
-
+from collections import deque
 
 class Rand48(object):
     #This code is borrowed from https://stackoverflow.com/questions/7287014/is-there-any-drand48-equivalent-in-python-or-a-wrapper-to-it
@@ -29,8 +28,8 @@ class Process:
         ''' Stuff we get from part1:'''
         self.name = name
         self.is_cpu_intensive = is_cpu_intensive
-        self.cpu_burst_times = []
-        self.io_burst_times = []
+        self.cpu_burst_times = deque([])
+        self.io_burst_times = deque([])
         self.arrival_time = arrival_time
         ''' Stuff we compute in part2:'''
         self.wait_time = wait_time
@@ -38,18 +37,19 @@ class Process:
         self.turnarround_time = 0
         self.cpu_utilization = 0
         self.preemptions = 0
-
+        self.hasRunIO = False
     
     def copy(self, p: 'Process'):
         p.name = self.name
         p.is_cpu_intensive = self.is_cpu_intensive
-        p.cpu_burst_times = list(self.cpu_burst_times)
-        p.io_burst_times = list(self.io_burst_times)
+        p.cpu_burst_times = deque(list(self.cpu_burst_times))
+        p.io_burst_times = deque(list(self.io_burst_times))
         p.wait_time = self.wait_time
         p.running_time = self.running_time
         p.turnarround_time = self.turnarround_time
         p.cpu_utilization = self.cpu_utilization
         p.arrival_time = self.arrival_time
+        p.hasRunIO = self.hasRunIO
         return p
 
 
