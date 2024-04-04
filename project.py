@@ -4,117 +4,15 @@ import math
 import string
 from utils import Rand48
 from utils import Process
-import heapq
-from collections import deque
-from typing import List
 
+
+from FCFS import fcfs
+from SJF import sjf
+from RR import rr
+from SRT import srt
 
 rand48 = Rand48()
 alpahbet = string.ascii_uppercase
-
-
-def copy_process_list(process_list):
-    
-    ret = []
-
-    for p in process_list:
-        new_p = Process()
-        ret.append(p.copy(new_p))
-        
-    return ret
-
-def print_ready_queue(q: List[Process]):
-    ret = ''
-    for p in q:
-        ret += ' ' + p.name
-        
-    return ret
-
-
-
-def fcfs(original_processes, tcs):
-    time = 0
-    #Copy the processes:
-    processes = copy_process_list(original_processes)
-
-    all = []
-    ready = deque([])
-
-    for p in processes:
-        heapq.heappush(all, (p.arrival_time, p.name, p))
-        
-    print("time 0ms: Simulator started for FCFS [Q <empty>]")
-
-
-    while (all or ready):
-        #If running queue is empty:
-            #Pop the next proccess and jump to that arrival time
-        #Else, after finishing current process, pick next thing in waiting queue
-        
-        if (not ready):
-            _, _, p = heapq.heappop(all)
-            ready.append(p)
-            time = p.arrival_time #Since nothing is in the waiting_queue, jump ahead to the next arrival time
-            #time += tcs//2
-            print(f"time {time}ms: Process {p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
-            p.hasRunIO = True
-            #time += p.cpu_burst_times[0]            
-
-        time += tcs//2
-        p = ready.popleft()
-        cpu_runtime = p.cpu_burst_times.popleft()
-        if not ready:
-            print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
-        else:
-            print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
-        time += cpu_runtime
-
-        #Update this process: Add back to all queue or finish
-        if p.cpu_burst_times:
-
-            #Add this process back to the all queue with updated arrival time
-            p.arrival_time = time + p.io_burst_times.popleft()+tcs//2
-            heapq.heappush(all, (p.arrival_time, p.name, p))
-
-
-        while all:
-            _, _, next_p = all[0]
-    
-            if next_p.arrival_time < time:
-                
-                ready.append(next_p)
-                heapq.heappop(all)
-
-                if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
-                    next_p.hasRunIO = True
-                else:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
-                    
-            else:
-                break
-
-        if len(p.cpu_burst_times) == 0:
-            if not ready:
-                print(f"time {time}ms: Process {p.name} terminated [Q <empty>]")
-            else:
-                print(f"time {time}ms: Process {p.name} terminated [Q{print_ready_queue(ready)}]")
-
-
-        elif not ready:
-            print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
-            print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
-        else:
-            print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_ready_queue(ready)}]")
-            print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
-
-        time += tcs//2
-
-    print(f"time {time}ms: Simulator ended for FCFS [Q <empty>]")
-
-    return time
-
-
 
 
 def next_exp(lamda, upper_bound):
@@ -209,11 +107,16 @@ def main():
 
     #print("Part2")
 
-    print("\n<<< PROJECT PART II -- t_cs=6ms; alpha=0.90; t_slice=128ms >>>")
-    fcfs(processes, tcs)
-    # sjf()
-    # srt()
-    # rr()
+    print(f"\n<<< PROJECT PART II -- t_cs={tcs}ms; alpha={alpha:.2f}; t_slice={t_slice}ms >>>")
+    #fcfs(processes, tcs)
+    #print()
+    #sjf(processes, tcs, alpha, lamda)
+    #print()
+    srt(processes, tcs, alpha, lamda)
+    # print()
+    # rr(processes, tcs, t_slice)
 
     
 main()
+
+

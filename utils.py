@@ -1,4 +1,7 @@
 from collections import deque
+from typing import List
+import heapq
+
 
 class Rand48(object):
     #This code is borrowed from https://stackoverflow.com/questions/7287014/is-there-any-drand48-equivalent-in-python-or-a-wrapper-to-it
@@ -38,6 +41,10 @@ class Process:
         self.cpu_utilization = 0
         self.preemptions = 0
         self.hasRunIO = False
+        self.estimatedNext = -1 
+        self.actualLast = -1
+        self.time_elapsed = 0
+        self.updated_tau = 0
     
     def copy(self, p: 'Process'):
         p.name = self.name
@@ -50,7 +57,46 @@ class Process:
         p.cpu_utilization = self.cpu_utilization
         p.arrival_time = self.arrival_time
         p.hasRunIO = self.hasRunIO
+        p.estimatedNext = self.estimatedNext
+        p.actualLast = self.actualLast
+        p.time_elapsed = self.time_elapsed
+        p.updated_tau = self.updated_tau
         return p
+
+
+def copy_process_list(process_list):
+    
+    ret = []
+
+    for p in process_list:
+        new_p = Process()
+        ret.append(p.copy(new_p))
+        
+    return ret
+
+
+
+def print_ready_queue(q: List[Process]):
+    ret = ''
+    for p in q:
+        ret += ' ' + p.name
+        
+    return ret
+
+
+def print_heapq_ready_queue(q: List[Process]):
+
+    if not q:
+        return " <empty>"
+
+
+    ret = ''
+    copy = list(q)
+    while copy:
+        e, _, item = heapq.heappop(copy)
+        ret += ' ' + item.name
+    return ret
+
 
 
 
