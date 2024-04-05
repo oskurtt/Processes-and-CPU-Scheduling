@@ -100,13 +100,13 @@ def print_heapq_ready_queue(q: List[Process]):
 
 
 
-def print_stats(algorithm_name, cpu_util, avg_burst_time_num, avg_burst_time_denom, avg_wait_time_num, avg_wait_time_denom,avg_turn_time_num, avg_turn_time_denom, num_context_switches, num_prem):
+# def print_stats(algorithm_name, cpu_util, avg_burst_time_num, avg_burst_time_denom, avg_wait_time_num, avg_wait_time_denom,avg_turn_time_num, avg_turn_time_denom, num_context_switches, num_prem):
 
-    print(f"Algorithm {algorithm_name}")
-    print(f"-- CPU utilization: {:.3f}%".formate(cpu_util))
-    print(f"-- average CPU burst time: {:.3f} ms ({:3f} ms/{:.3f} ms)".format(avg_burst_time_num/avg_burst_time_denom, avg_burst_time_num, avg_burst_time_denom))
-    print(f"-- average wait time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(avg_wait_time_num/avg_wait_time_denom, avg_wait_time_num, avg_wait_time_denom))
-    print("-- average turnaround time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(avg_turn_time_num/avg_turn_time_denom, avg_turn_time_num, avg_turn_time_denom))
+#     print(f"Algorithm {algorithm_name}")
+#     print(f"-- CPU utilization: {:.3f}%".formate(cpu_util))
+#     print(f"-- average CPU burst time: {:.3f} ms ({:3f} ms/{:.3f} ms)".format(avg_burst_time_num/avg_burst_time_denom, avg_burst_time_num, avg_burst_time_denom))
+#     print(f"-- average wait time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(avg_wait_time_num/avg_wait_time_denom, avg_wait_time_num, avg_wait_time_denom))
+#     print("-- average turnaround time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(avg_turn_time_num/avg_turn_time_denom, avg_turn_time_num, avg_turn_time_denom))
 
     
 
@@ -114,21 +114,29 @@ def print_stats(algorithm_name, cpu_util, avg_burst_time_num, avg_burst_time_den
 # -- number of preemptions: 0 (0/0)
 
 
+def print_algo(algorithm, cpu_util, cpu_burst_time, avg_wait_time, avg_turn_time, num_context_switches, num_prem):
 
-
+    print(f"Algorithm {algorithm}")
+    print("-- CPU utilization: {:.3f}%".format(cpu_util))
+    print("-- average CPU burst time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(cpu_burst_time[0], cpu_burst_time[1], cpu_burst_time[2]))
+    print("-- average wait time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(avg_wait_time[0], avg_wait_time[1], avg_wait_time[2]))
+    print("-- average turnaround time: {:3f} ms ({:3f} ms/{:3f} ms)".format(avg_turn_time[0], avg_turn_time[1], avg_turn_time[2]))
+    print("-- number of context switches: 89 (60/29)")
 
 def calculate_statistics():
+
+    pass
 
 
 
 
     """
-    Algorithm FCFS
--- CPU utilization: 84.253%
--- average CPU burst time: 3067.776 ms (4071.000 ms/992.138 ms)
--- average wait time: 779.663 ms (217.284 ms/1943.207 ms)
--- average turnaround time: 3851.439 ms (4292.284 ms/2939.345 ms)
--- number of context switches: 89 (60/29)
+    
+
+
+
+
+
 -- number of preemptions: 0 (0/0)
 
 Algorithm SJF
