@@ -17,6 +17,8 @@ def rr(original_processes, tcs, tslice):
 
 
     while (all or ready):
+
+        #print(time)
         
         if (not ready):
             _, _, p = heapq.heappop(all)
@@ -28,14 +30,53 @@ def rr(original_processes, tcs, tslice):
             else:
                 print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
 
+
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time <= time:
+                
+                ready.append(next_p)
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    
+            else:
+                break
+
+        p = ready.popleft()
         time += tcs//2
         preemption_time = time + tslice
-        p = ready.popleft()
         cpu_runtime = p.cpu_burst_times.popleft()
-        if not ready:
-            print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
+
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time <= time:
+                
+                ready.append(next_p)
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    
+            else:
+                break
+
+        if p.time_elapsed == 0:
+            if not ready:
+                print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
+            else:
+                print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
         else:
-            print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
+            print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_ready_queue(ready)}]")
         
         #time += cpu_runtime
 
@@ -67,12 +108,12 @@ def rr(original_processes, tcs, tslice):
                 else:
                     break
                     
+            p.time_elapsed = 0
             if len(p.cpu_burst_times) == 0:
                 if not ready:
                     print(f"time {time}ms: Process {p.name} terminated [Q <empty>]")
                 else:
                     print(f"time {time}ms: Process {p.name} terminated [Q{print_ready_queue(ready)}]")
-
 
             elif not ready:
                 if len(p.cpu_burst_times) > 1:
@@ -91,10 +132,17 @@ def rr(original_processes, tcs, tslice):
 
             time += tcs//2
         else:
-            while not ready and cpu_runtime > 0:
+
+
+
+
+            #while not ready and cpu_runtime > 0:
+            while True:
                 burst_time = min(tslice, cpu_runtime)
                 cpu_runtime -= burst_time
                 time += burst_time
+
+                p.time_elapsed += burst_time
 
                 while all:
                     _, _, next_p = all[0]
@@ -112,11 +160,19 @@ def rr(original_processes, tcs, tslice):
                             
                     else:
                         break
+
+                if (ready or cpu_runtime == 0):
+                    break
+
+
+
+
             if cpu_runtime > 0: 
                 print(f"time {time}ms: Time slice expired; preempting process {p.name} with {cpu_runtime}ms remaining [Q{print_ready_queue(ready)}]")
                 p.cpu_burst_times.appendleft(cpu_runtime)
                 ready.append(p)
             elif cpu_runtime == 0 and p.cpu_burst_times:
+                p.time_elapsed = 0
                 p.arrival_time = time + p.io_burst_times.popleft()+tcs//2
                 heapq.heappush(all, (p.arrival_time, p.name, p))
                 if len(p.cpu_burst_times) == 0:
@@ -141,7 +197,7 @@ def rr(original_processes, tcs, tslice):
 
                     print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
 
-                time += tcs//2
+            time += tcs//2
 
     print(f"time {time}ms: Simulator ended for FCFS [Q <empty>]")
 
