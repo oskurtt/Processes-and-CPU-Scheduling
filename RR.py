@@ -238,7 +238,7 @@ def rr(original_processes, tcs, tslice):
             time += tcs//2
 
 
-    print(f"time {time}ms: Simulator ended for RR [Q <empty>]")
+    print(f"time {time}ms: Simulator ended for RR [Q <empty>]", end='')
 
     return time
 
