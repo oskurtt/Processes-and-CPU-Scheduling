@@ -50,9 +50,6 @@ def fcfs(original_processes, tcs):
     average_wait_time = sum(all_bursts)/len(all_bursts)
     average_io_wait_time = sum(io_bursts)/len(io_bursts)
     average_cpu_wait_time = sum(cpu_bursts)/len(cpu_bursts)
-
-    print(average_wait_time, average_io_wait_time, average_cpu_wait_time)
-    assert(True==False)
         
     print("time 0ms: Simulator started for FCFS [Q <empty>]")
 
@@ -72,11 +69,46 @@ def fcfs(original_processes, tcs):
                 p.hasRunIO = True
             else:
                 print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
-            #time += p.cpu_burst_times[0]            
+            #time += p.cpu_burst_times[0]
+
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time <= time:
+                
+                ready.append(next_p)
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    
+            else:
+                break            
 
         time += tcs//2
         p = ready.popleft()
         cpu_runtime = p.cpu_burst_times.popleft()
+
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time < time:
+                
+                ready.append(next_p)
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    
+            else:
+                break
+
         if not ready:
             print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
         else:

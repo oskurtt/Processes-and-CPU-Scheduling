@@ -160,6 +160,8 @@ def srt(original_processes, tcs, alpha, lamda):
             #print("After Time elapsed!!",time_elapsed)
             p_remaining = cpu_runtime - time_elapsed
 
+            preemption_happened = False
+
             while all:
                 _, _, next_p = all[0]
                 if next_p.arrival_time <= time and p_remaining > 0:                    
@@ -170,7 +172,8 @@ def srt(original_processes, tcs, alpha, lamda):
                     #if (time == 141494):
                         #print(p.name, cpu_runtime, time_elapsed, p.time_elapsed)
 
-                    if (ready and p.estimatedNext - time_elapsed - p.time_elapsed > ready[0][2].estimatedNext-ready[0][2].time_elapsed):
+                    if (ready and p.estimatedNext - time_elapsed - p.time_elapsed > ready[0][2].estimatedNext-ready[0][2].time_elapsed and not preemption_happened):
+                        preemption_happened = True
                         if not p.hasRunIO:
                             print(f"time {time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; preempting {p.name} [Q{print_heapq_ready_queue(ready)}]")
                             p.hasRunIO = True
@@ -224,7 +227,7 @@ def srt(original_processes, tcs, alpha, lamda):
                 old_tau = p.estimatedNext # (tau val)
                 c_alpha = struct.unpack("f", struct.pack("f",float(alpha)))[0]
                 #print(cpu_runtime, p.time_elapsed)
-                p.estimatedNext = (c_alpha * (cpu_runtime + p.time_elapsed) + (1 - c_alpha) * old_tau)
+                p.estimatedNext = math.ceil(c_alpha * (cpu_runtime + p.time_elapsed) + (1 - c_alpha) * old_tau)
                 #=============================================
 
                 p.time_elapsed = 0
