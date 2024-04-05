@@ -48,9 +48,21 @@ def fcfs(original_processes, tcs):
                 io_bursts.append(burst_time)
             all_bursts.append(burst_time)
 
-    average_wait_time = sum(all_bursts)/len(all_bursts)
-    average_io_wait_time = sum(io_bursts)/len(io_bursts)
-    average_cpu_wait_time = sum(cpu_bursts)/len(cpu_bursts)
+
+    try:
+        average_wait_time = sum(all_bursts)/len(all_bursts)
+    except:
+        average_wait_time = 0
+
+    try:
+        average_io_wait_time = sum(io_bursts)/len(io_bursts)
+    except:
+        average_wait_time = 0
+
+    try:
+        average_cpu_wait_time = sum(cpu_bursts)/len(cpu_bursts)
+    except:
+        averate_wait_time = 0
         
     print("time 0ms: Simulator started for FCFS [Q <empty>]")
 
