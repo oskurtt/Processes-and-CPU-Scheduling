@@ -23,6 +23,7 @@ def fcfs(original_processes, tcs):
     average_turnaround_time = 0
     average_io_turnaround_time = 0
     average_cpu_turnaround_time = 0
+    turnaround_dict = {}
 
     cpu_context_switches = 0
     io_context_switches = 0
@@ -65,10 +66,15 @@ def fcfs(original_processes, tcs):
             time = p.arrival_time #Since nothing is in the waiting_queue, jump ahead to the next arrival time
             #time += tcs//2
             if not p.hasRunIO:
-                print(f"time {time}ms: Process {p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                 p.hasRunIO = True
+                # if not p.name in turnaround_dict:
+                #     turnaround_dict[p.name] = dict()
+                #     turnaround_dict[p.name]['cpu'] = -time
             else:
-                print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
             #time += p.cpu_burst_times[0]
 
         while all:
@@ -80,10 +86,15 @@ def fcfs(original_processes, tcs):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
+                    # if not p.name in turnaround_dict:
+                    #     turnaround_dict[p.name] = dict()
+                    #     turnaround_dict[p.name]['cpu'] = -time
                 else:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:
                 break            
@@ -101,18 +112,25 @@ def fcfs(original_processes, tcs):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
+                    # if not p.name in turnaround_dict:
+                    #     turnaround_dict[p.name] = dict()
+                    #     turnaround_dict[p.name]['cpu'] = -time
+
                 else:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:
                 break
-
-        if not ready:
-            print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
-        else:
-            print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
+        
+        if time < 10000:
+            if not ready:
+                print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
+            else:
+                print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
         time += cpu_runtime
 
         #Update this process: Add back to all queue or finish
@@ -132,9 +150,14 @@ def fcfs(original_processes, tcs):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
-                else:
+                    # if not p.name in turnaround_dict:
+                    #     turnaround_dict[p.name] = dict()
+                    #     turnaround_dict[p.name]['cpu'] = -time
+
+                elif next_p.arrival_time < 10000:
                     print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:
@@ -145,22 +168,26 @@ def fcfs(original_processes, tcs):
                 print(f"time {time}ms: Process {p.name} terminated [Q <empty>]")
             else:
                 print(f"time {time}ms: Process {p.name} terminated [Q{print_ready_queue(ready)}]")
+            #turnaround_dict[p.name]['cpu'] += time
 
 
         elif not ready:
-            if len(p.cpu_burst_times) > 1:
-                print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
-            else: 
-                print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
+            if time < 10000:
+                if len(p.cpu_burst_times) > 1:
+                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
+                else: 
+                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
 
-            print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
+                print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
+
         else:
-            if len(p.cpu_burst_times) > 1:
-                print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_ready_queue(ready)}]")
-            else:
-                print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_ready_queue(ready)}]")
+            if time < 10000:
+                if len(p.cpu_burst_times) > 1:
+                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_ready_queue(ready)}]")
+                else:
+                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_ready_queue(ready)}]")
 
-            print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
+                print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
 
         time += tcs//2
 
