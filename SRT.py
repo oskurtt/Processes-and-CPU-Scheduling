@@ -116,7 +116,8 @@ def srt(original_processes, tcs, alpha, lamda):
                 if time < 10000:
                     print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q{print_heapq_ready_queue(ready)}]")
         else:
-            print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_heapq_ready_queue(ready)}]")
+            if time < 10000:
+                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_heapq_ready_queue(ready)}]")
 
 
 
@@ -129,7 +130,8 @@ def srt(original_processes, tcs, alpha, lamda):
 
         if (ready and ready[0][2].estimatedNext-ready[0][2].time_elapsed < p.estimatedNext-p.time_elapsed):
             #print("PREEMPTION DURING CONTEXT SWITCH!!!")
-            print(f"time {time}ms: Process {ready[0][2].name} (tau {ready[0][2].estimatedNext}ms) will preempt {p.name} [Q{print_heapq_ready_queue(ready)}]")
+            if time < 10000:
+                print(f"time {time}ms: Process {ready[0][2].name} (tau {ready[0][2].estimatedNext}ms) will preempt {p.name} [Q{print_heapq_ready_queue(ready)}]")
 
             _, _, p_new = heapq.heappop(ready)
             time += tcs
