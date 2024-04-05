@@ -1,4 +1,4 @@
-from utils import copy_process_list, print_heapq_ready_queue
+from utils import copy_process_list, print_heapq_ready_queue, Stats
 import heapq
 from collections import deque
 import math
@@ -12,6 +12,48 @@ def c_float(x):
     return struct.unpack("f", struct.pack("f",float(x)))[0]
 
 def srt(original_processes, tcs, alpha, lamda):
+
+    stats = Stats()
+    stats.algorithm = "SRT"
+    
+
+    time = 0
+    #Copy the processes:
+    processes = copy_process_list(original_processes)
+
+    #statistics:
+
+
+    all = []
+    ready = deque([])
+
+    # Calculate the avg burst times
+    all_bursts = []
+    cpu_bursts = []
+    io_bursts = []
+    for p in processes:
+        heapq.heappush(all, (p.arrival_time, p.name, p))
+        for burst_time in p.cpu_burst_times:
+            if p.is_cpu_intensive:
+                cpu_bursts.append(burst_time)
+            else:
+                io_bursts.append(burst_time)
+            all_bursts.append(burst_time)
+    try:
+        stats.cpu_burst_times.append(sum(all_bursts)/len(all_bursts))
+    except:
+        stats.cpu_burst_times.append(0)
+
+    try:
+        stats.cpu_burst_times.append(sum(io_bursts)/len(io_bursts))
+    except:
+        stats.cpu_burst_times.append(0)
+
+    try:
+        stats.cpu_burst_times.append(sum(cpu_bursts)/len(cpu_bursts))
+    except:
+        stats.cpu_burst_times.append(0)
+
     time = 0
     #Copy the processes:
     processes = copy_process_list(original_processes)
@@ -133,6 +175,12 @@ def srt(original_processes, tcs, alpha, lamda):
             if time < 10000:
                 print(f"time {time}ms: Process {ready[0][2].name} (tau {ready[0][2].estimatedNext}ms) will preempt {p.name} [Q{print_heapq_ready_queue(ready)}]")
 
+                if p.is_cpu_intensive:
+                    stats.num_prem[1]+=1
+                else:
+                    stats.num_prem[2]+=1
+                stats.num_prem[0]+=1
+
             _, _, p_new = heapq.heappop(ready)
             time += tcs
             start_time = time
@@ -225,6 +273,12 @@ def srt(original_processes, tcs, alpha, lamda):
                 heapq.heappush(ready, (p.estimatedNext-p.time_elapsed, p.name, p))
                 #justPreempted = True
                 #lastP = p.name
+
+                if p.is_cpu_intensive:
+                    stats.num_prem[1]+=1
+                else:
+                    stats.num_prem[2]+=1
+                stats.num_prem[0]+=1
                 
                 #_, _, p = heapq.heappop(ready)
                 time += tcs//2
@@ -290,6 +344,6 @@ def srt(original_processes, tcs, alpha, lamda):
 
     print(f"time {time}ms: Simulator ended for SRT [Q <empty>]")
 
-    return time
+    return stats
 
 

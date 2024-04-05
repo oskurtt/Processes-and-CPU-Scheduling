@@ -1,44 +1,30 @@
-from utils import copy_process_list, print_ready_queue
+from utils import copy_process_list, print_ready_queue, Stats
 import heapq
 from collections import deque
 
 
 
 def fcfs(original_processes, tcs):
+
+
+    stats = Stats()
+    stats.algorithm = "FCFS"
+    
+
     time = 0
     #Copy the processes:
     processes = copy_process_list(original_processes)
 
     #statistics:
 
-    # average CPU burst times for both CPU and IO processes
-    average_burst_time = 0
-    average_io_burst_time = 0
-    average_cpu_burst_time = 0
-
-    average_wait_time = 0
-    average_io_wait_time = 0
-    average_cpu_wait_time = 0
-
-    average_turnaround_time = 0
-    average_io_turnaround_time = 0
-    average_cpu_turnaround_time = 0
-    turnaround_dict = {}
-
-    cpu_context_switches = 0
-    io_context_switches = 0
-
-    io_preemptions = 0
-    cpu_preemptions = 0
-
 
     all = []
     ready = deque([])
 
+    # Calculate the avg burst times
     all_bursts = []
     cpu_bursts = []
     io_bursts = []
-
     for p in processes:
         heapq.heappush(all, (p.arrival_time, p.name, p))
         for burst_time in p.cpu_burst_times:
@@ -47,22 +33,25 @@ def fcfs(original_processes, tcs):
             else:
                 io_bursts.append(burst_time)
             all_bursts.append(burst_time)
-
+    try:
+        stats.cpu_burst_time.append(sum(all_bursts)/len(all_bursts))
+    except:
+        stats.cpu_burst_time.append(0)
 
     try:
-        average_wait_time = sum(all_bursts)/len(all_bursts)
+        stats.cpu_burst_time.append(sum(io_bursts)/len(io_bursts))
     except:
-        average_wait_time = 0
+        stats.cpu_burst_time.append(0)
 
     try:
-        average_io_wait_time = sum(io_bursts)/len(io_bursts)
+        stats.cpu_burst_time.append(sum(cpu_bursts)/len(cpu_bursts))
     except:
-        average_wait_time = 0
+        stats.cpu_burst_time.append(0)
 
-    try:
-        average_cpu_wait_time = sum(cpu_bursts)/len(cpu_bursts)
-    except:
-        averate_wait_time = 0
+
+
+
+        
         
     print("time 0ms: Simulator started for FCFS [Q <empty>]")
 
@@ -81,9 +70,6 @@ def fcfs(original_processes, tcs):
                 if time < 10000:
                     print(f"time {time}ms: Process {p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                 p.hasRunIO = True
-                # if not p.name in turnaround_dict:
-                #     turnaround_dict[p.name] = dict()
-                #     turnaround_dict[p.name]['cpu'] = -time
             else:
                 if time < 10000:
                     print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
@@ -101,9 +87,7 @@ def fcfs(original_processes, tcs):
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
-                    # if not p.name in turnaround_dict:
-                    #     turnaround_dict[p.name] = dict()
-                    #     turnaround_dict[p.name]['cpu'] = -time
+                    
                 else:
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
@@ -112,6 +96,12 @@ def fcfs(original_processes, tcs):
                 break            
 
         time += tcs//2
+        if p.is_cpu_intensive:
+            stats.num_context_switches[1] += 1
+        else:
+            stats.num_context_switches[2] += 1
+        stats.num_context_switches[0] += 1
+        
         p = ready.popleft()
         cpu_runtime = p.cpu_burst_times.popleft()
 
@@ -127,9 +117,7 @@ def fcfs(original_processes, tcs):
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
-                    # if not p.name in turnaround_dict:
-                    #     turnaround_dict[p.name] = dict()
-                    #     turnaround_dict[p.name]['cpu'] = -time
+                    
 
                 else:
                     if next_p.arrival_time < 10000:
@@ -165,9 +153,6 @@ def fcfs(original_processes, tcs):
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
-                    # if not p.name in turnaround_dict:
-                    #     turnaround_dict[p.name] = dict()
-                    #     turnaround_dict[p.name]['cpu'] = -time
 
                 elif next_p.arrival_time < 10000:
                     print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
@@ -180,8 +165,6 @@ def fcfs(original_processes, tcs):
                 print(f"time {time}ms: Process {p.name} terminated [Q <empty>]")
             else:
                 print(f"time {time}ms: Process {p.name} terminated [Q{print_ready_queue(ready)}]")
-            #turnaround_dict[p.name]['cpu'] += time
-
 
         elif not ready:
             if time < 10000:
@@ -205,6 +188,16 @@ def fcfs(original_processes, tcs):
 
     print(f"time {time}ms: Simulator ended for FCFS [Q <empty>]")
 
-    return time
+    stats.avg_wait_time = (time - sum(all_bursts) - ((stats.num_context_switches[0]) * tcs))/time
+
+    try:
+        stats.cpu_util = sum(all_bursts)/time
+    except:
+        stats.cpu_util = 0
+
+
+    
+        
+    return stats
 
 

@@ -1,0 +1,11 @@
+
+Algorithm SJF
+-- CPU utilization: 0.000%
+-- average CPU burst time: 2694.901 ms (3480.735 ms/632.089 ms)
+-- average wait time: 0.000 ms (0.000 ms/0.000 ms)
+-- average turnaround time: 0.000 ms (0.000 ms/0.000 ms)
+-- number of context switches: 203 (54/149)
+-- number of preemptions: [0, 0, 0] (0/0)
+
+
+

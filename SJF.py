@@ -1,4 +1,4 @@
-from utils import copy_process_list, print_heapq_ready_queue
+from utils import copy_process_list, print_heapq_ready_queue, Stats
 import heapq
 from collections import deque
 import math
@@ -12,6 +12,46 @@ def c_float(x):
     return struct.unpack("f", struct.pack("f",float(x)))[0]
 
 def sjf(original_processes, tcs, alpha, lamda):
+
+    stats = Stats()
+    stats.algorithm = "SJF"
+
+    time = 0
+    #Copy the processes:
+    processes = copy_process_list(original_processes)
+
+    #statistics:
+
+
+    all = []
+    ready = deque([])
+
+    # Calculate the avg burst times
+    all_bursts = []
+    cpu_bursts = []
+    io_bursts = []
+    for p in processes:
+        heapq.heappush(all, (p.arrival_time, p.name, p))
+        for burst_time in p.cpu_burst_times:
+            if p.is_cpu_intensive:
+                cpu_bursts.append(burst_time)
+            else:
+                io_bursts.append(burst_time)
+            all_bursts.append(burst_time)
+    try:
+        stats.cpu_burst_time.append(sum(all_bursts)/len(all_bursts))
+    except:
+        stats.cpu_burst_time.append(0)
+
+    try:
+        stats.cpu_burst_time.append(sum(io_bursts)/len(io_bursts))
+    except:
+        stats.cpu_burst_time.append(0)
+
+    try:
+        stats.cpu_burst_time.append(sum(cpu_bursts)/len(cpu_bursts))
+    except:
+        stats.cpu_burst_time.append(0)
     time = 0
     #Copy the processes:
     processes = copy_process_list(original_processes)
@@ -72,7 +112,11 @@ def sjf(original_processes, tcs, alpha, lamda):
                 break          
 
         time += tcs//2
-
+        if p.is_cpu_intensive:
+            stats.num_context_switches[1] += 1
+        else:
+            stats.num_context_switches[2] += 1
+        stats.num_context_switches[0] += 1
         #p = ready.popleft()
         _, _, p = heapq.heappop(ready)
 
@@ -172,7 +216,6 @@ def sjf(original_processes, tcs, alpha, lamda):
         time += tcs//2
 
     print(f"time {time}ms: Simulator ended for SJF [Q <empty>]")
-
-    return time
+    return stats
 
 

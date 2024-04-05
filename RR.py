@@ -1,9 +1,51 @@
-from utils import copy_process_list, print_ready_queue
+from utils import copy_process_list, print_ready_queue, Stats
 import heapq
 from collections import deque
 
 
 def rr(original_processes, tcs, tslice):
+    
+    stats = Stats()
+    stats.algorithm = "RR"
+    
+
+    time = 0
+    #Copy the processes:
+    processes = copy_process_list(original_processes)
+
+    #statistics:
+
+
+    all = []
+    ready = deque([])
+
+    # Calculate the avg burst times
+    all_bursts = []
+    cpu_bursts = []
+    io_bursts = []
+    for p in processes:
+        heapq.heappush(all, (p.arrival_time, p.name, p))
+        for burst_time in p.cpu_burst_times:
+            if p.is_cpu_intensive:
+                cpu_bursts.append(burst_time)
+            else:
+                io_bursts.append(burst_time)
+            all_bursts.append(burst_time)
+    try:
+        stats.cpu_burst_times.append(sum(all_bursts)/len(all_bursts))
+    except:
+        stats.cpu_burst_times.append(0)
+
+    try:
+        stats.cpu_burst_times.append(sum(io_bursts)/len(io_bursts))
+    except:
+        stats.cpu_burst_times.append(0)
+
+    try:
+        stats.cpu_burst_times.append(sum(cpu_bursts)/len(cpu_bursts))
+    except:
+        stats.cpu_burst_times.append(0)
+
     time = 0
     processes = copy_process_list(original_processes)
 
@@ -259,6 +301,6 @@ def rr(original_processes, tcs, tslice):
 
     print(f"time {time}ms: Simulator ended for RR [Q <empty>]", end='')
 
-    return time
+    return stats
 
 

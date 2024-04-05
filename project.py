@@ -108,14 +108,30 @@ def main():
     #print("Part2")
 
     print(f"\n<<< PROJECT PART II -- t_cs={tcs}ms; alpha={alpha:.2f}; t_slice={t_slice}ms >>>")
-    fcfs(processes, tcs)
+    #stats1 = fcfs(processes, tcs)
     print()
-    sjf(processes, tcs, alpha, lamda)
+    stats2 = sjf(processes, tcs, alpha, lamda)
     print()
-    srt(processes, tcs, alpha, lamda)
+    #stats3 = srt(processes, tcs, alpha, lamda)
     print()
-    rr(processes, tcs, t_slice)
+    #stats4 = rr(processes, tcs, t_slice)
 
+    
+
+    stats_string = ""
+    #Write stats 1-4 to simout.txt
+    #stats_string += stats1.get_as_string() #FCFS
+    stats_string += "\n"
+    stats_string += stats2.get_as_string() #SJF
+    stats_string += "\n"
+    #stats_string += stats3.get_as_string() #SRT
+    stats_string += "\n"
+    #sstats_string += stats4.get_as_string() #RR
+    stats_string += "\n"
+
+
+    with open("simout.txt", "w") as file:
+        file.write(stats_string)
     
 main()
 
