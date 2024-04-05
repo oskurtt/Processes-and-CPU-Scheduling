@@ -56,7 +56,7 @@ def rr(original_processes, tcs, tslice):
         while all:
             _, _, next_p = all[0]
         
-            if next_p.arrival_time <= time:
+            if next_p.arrival_time < time:
                 
                 ready.append(next_p)
                 heapq.heappop(all)
@@ -76,7 +76,11 @@ def rr(original_processes, tcs, tslice):
             else:
                 print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
         else:
-            print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_ready_queue(ready)}]")
+            if ready:
+                print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_ready_queue(ready)}]")
+            else:
+                print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q <empty>]")
+
         
         #time += cpu_runtime
 
@@ -163,12 +167,39 @@ def rr(original_processes, tcs, tslice):
 
                 if (ready or cpu_runtime == 0):
                     break
-
-
+                print(f"time {time}ms: Time slice expired; no preemption because ready queue is empty [Q <empty>]")
 
 
             if cpu_runtime > 0: 
                 print(f"time {time}ms: Time slice expired; preempting process {p.name} with {cpu_runtime}ms remaining [Q{print_ready_queue(ready)}]")
+
+                #This proc will be added to the the ready queue tcs//2 after preemption. Check special case where something arrives before then
+
+                while all:
+                    _, _, next_p = all[0]
+
+                    #print(time)
+                    #print(all[0])
+                    #print(next_p.arrival_time)
+                    #print(next_p.arrival_time < time + tcs//2)
+                    #print(next_p.arrival_time, time)
+                
+                    if next_p.arrival_time < time + tcs//2:
+
+                        #print("SPECIAL CASE HERE!!")
+                        
+                        ready.append(next_p)
+                        heapq.heappop(all)
+
+                        if not next_p.hasRunIO:
+                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                            next_p.hasRunIO = True
+                        else:
+                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                            
+                    else:
+                        break
+
                 p.cpu_burst_times.appendleft(cpu_runtime)
                 ready.append(p)
             elif cpu_runtime == 0 and p.cpu_burst_times:
@@ -197,9 +228,17 @@ def rr(original_processes, tcs, tslice):
 
                     print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
 
+            elif cpu_runtime == 0 and not p.cpu_burst_times:
+                if len(p.cpu_burst_times) == 0:
+                    if not ready:
+                        print(f"time {time}ms: Process {p.name} terminated [Q <empty>]")
+                    else:
+                        print(f"time {time}ms: Process {p.name} terminated [Q{print_ready_queue(ready)}]")
+
             time += tcs//2
 
-    print(f"time {time}ms: Simulator ended for FCFS [Q <empty>]")
+
+    print(f"time {time}ms: Simulator ended for RR [Q <empty>]")
 
     return time
 
