@@ -108,7 +108,7 @@ def main():
     #print("Part2")
 
     print(f"\n<<< PROJECT PART II -- t_cs={tcs}ms; alpha={alpha:.2f}; t_slice={t_slice}ms >>>")
-    # fcfs(processes, tcs)
+    fcfs(processes, tcs)
     print()
     #sjf(processes, tcs, alpha, lamda)
     print()
