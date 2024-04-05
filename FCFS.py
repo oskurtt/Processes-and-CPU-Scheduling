@@ -86,14 +86,14 @@ def fcfs(original_processes, tcs):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    if time < 10000:
+                    if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
                     # if not p.name in turnaround_dict:
                     #     turnaround_dict[p.name] = dict()
                     #     turnaround_dict[p.name]['cpu'] = -time
                 else:
-                    if time < 10000:
+                    if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:
@@ -112,7 +112,7 @@ def fcfs(original_processes, tcs):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    if time < 10000:
+                    if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
                     # if not p.name in turnaround_dict:
@@ -120,7 +120,7 @@ def fcfs(original_processes, tcs):
                     #     turnaround_dict[p.name]['cpu'] = -time
 
                 else:
-                    if time < 10000:
+                    if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:
@@ -150,14 +150,14 @@ def fcfs(original_processes, tcs):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    if time < 10000:
+                    if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
                     # if not p.name in turnaround_dict:
                     #     turnaround_dict[p.name] = dict()
                     #     turnaround_dict[p.name]['cpu'] = -time
 
-                elif time < 10000:
+                elif next_p.arrival_time < 10000:
                     print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:

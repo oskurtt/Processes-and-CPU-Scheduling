@@ -48,10 +48,12 @@ def srt(original_processes, tcs, alpha, lamda):
 
 
             if not p.hasRunIO:
-                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                 p.hasRunIO = True
             else:
-                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
             
         while all:
             _, _, next_p = all[0]
@@ -63,10 +65,12 @@ def srt(original_processes, tcs, alpha, lamda):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                     next_p.hasRunIO = True
                 else:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                     
             else:
                 break
@@ -92,10 +96,12 @@ def srt(original_processes, tcs, alpha, lamda):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                     next_p.hasRunIO = True
                 else:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                     
             else:
                 break
@@ -104,9 +110,11 @@ def srt(original_processes, tcs, alpha, lamda):
         
         if p.time_elapsed == 0:
             if not ready:
-                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
             else:
-                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q{print_heapq_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q{print_heapq_ready_queue(ready)}]")
         else:
             print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_heapq_ready_queue(ready)}]")
 
@@ -141,9 +149,11 @@ def srt(original_processes, tcs, alpha, lamda):
 
 
             if p.time_elapsed == 0:
-                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q{print_heapq_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q{print_heapq_ready_queue(ready)}]")
             else:
-                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_heapq_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_heapq_ready_queue(ready)}]")
 
 
 
@@ -175,16 +185,20 @@ def srt(original_processes, tcs, alpha, lamda):
                     if (ready and p.estimatedNext - time_elapsed - p.time_elapsed > ready[0][2].estimatedNext-ready[0][2].time_elapsed and not preemption_happened):
                         preemption_happened = True
                         if not p.hasRunIO:
-                            print(f"time {time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; preempting {p.name} [Q{print_heapq_ready_queue(ready)}]")
+                            if time < 10000:
+                                print(f"time {time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; preempting {p.name} [Q{print_heapq_ready_queue(ready)}]")
                             p.hasRunIO = True
                         else:
-                            print(f"time {time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; preempting {p.name} [Q{print_heapq_ready_queue(ready)}]")
+                            if time < 10000:
+                                print(f"time {time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; preempting {p.name} [Q{print_heapq_ready_queue(ready)}]")
                     else:
                         if not next_p.hasRunIO:
-                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                            if next_p.arrival_time < 10000:
+                                print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                             next_p.hasRunIO = True
                         else:
-                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                            if next_p.arrival_time < 10000:
+                                print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                         
                 else:
                     break
@@ -249,20 +263,26 @@ def srt(original_processes, tcs, alpha, lamda):
 
                 elif not ready:
                     if len(p.cpu_burst_times) > 1:
-                        print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
-                    else: 
-                        print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
+                        if time < 10000:
+                            print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
+                    else:
+                        if time < 10000: 
+                            print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
 
-                    print(f"time {time}ms: Recalculating tau for process {p.name}: old tau {old_tau}ms ==> new tau {p.estimatedNext}ms [Q{print_heapq_ready_queue(ready)}]")
-                    print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
+                    if time < 10000:
+                        print(f"time {time}ms: Recalculating tau for process {p.name}: old tau {old_tau}ms ==> new tau {p.estimatedNext}ms [Q{print_heapq_ready_queue(ready)}]")
+                        print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
                 else:
                     if len(p.cpu_burst_times) > 1:
-                        print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_heapq_ready_queue(ready)}]")
+                        if time < 10000:
+                            print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_heapq_ready_queue(ready)}]")
                     else:
-                        print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_heapq_ready_queue(ready)}]")
+                        if time < 10000:
+                            print(f"time {time}ms: Process {p.name} (tau {old_tau}ms) completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_heapq_ready_queue(ready)}]")
 
-                    print(f"time {time}ms: Recalculating tau for process {p.name}: old tau {old_tau}ms ==> new tau {p.estimatedNext}ms [Q{print_heapq_ready_queue(ready)}]")
-                    print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_heapq_ready_queue(ready)}]")
+                    if time < 10000:
+                        print(f"time {time}ms: Recalculating tau for process {p.name}: old tau {old_tau}ms ==> new tau {p.estimatedNext}ms [Q{print_heapq_ready_queue(ready)}]")
+                        print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_heapq_ready_queue(ready)}]")
             time += tcs//2
         
 

@@ -25,10 +25,12 @@ def rr(original_processes, tcs, tslice):
             ready.append(p)
             time = p.arrival_time
             if not p.hasRunIO:
-                print(f"time {time}ms: Process {p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                 p.hasRunIO = True
             else:
-                print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
 
 
         while all:
@@ -40,10 +42,12 @@ def rr(original_processes, tcs, tslice):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
                 else:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:
                 break
@@ -62,24 +66,27 @@ def rr(original_processes, tcs, tslice):
                 heapq.heappop(all)
 
                 if not next_p.hasRunIO:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                     next_p.hasRunIO = True
                 else:
-                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                    if next_p.arrival_time < 10000:
+                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                     
             else:
                 break
 
-        if p.time_elapsed == 0:
-            if not ready:
-                print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
+        if time < 10000:
+            if p.time_elapsed == 0:
+                if not ready:
+                    print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
+                else:
+                    print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
             else:
-                print(f"time {time}ms: Process {p.name} started using the CPU for {cpu_runtime}ms burst [Q{print_ready_queue(ready)}]")
-        else:
-            if ready:
-                print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_ready_queue(ready)}]")
-            else:
-                print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q <empty>]")
+                if ready:
+                    print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_ready_queue(ready)}]")
+                else:
+                    print(f"time {time}ms: Process {p.name} started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q <empty>]")
 
         
         #time += cpu_runtime
@@ -104,10 +111,12 @@ def rr(original_processes, tcs, tslice):
                     heapq.heappop(all)
 
                     if not next_p.hasRunIO:
-                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                        if time < 10000:
+                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                         next_p.hasRunIO = True
                     else:
-                        print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                        if time < 10000:
+                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                         
                 else:
                     break
@@ -120,19 +129,21 @@ def rr(original_processes, tcs, tslice):
                     print(f"time {time}ms: Process {p.name} terminated [Q{print_ready_queue(ready)}]")
 
             elif not ready:
-                if len(p.cpu_burst_times) > 1:
-                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
-                else: 
-                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
+                if time < 10000:
+                    if len(p.cpu_burst_times) > 1:
+                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
+                    else: 
+                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
 
-                print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
+                    print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
             else:
-                if len(p.cpu_burst_times) > 1:
-                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_ready_queue(ready)}]")
-                else:
-                    print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_ready_queue(ready)}]")
+                if time < 10000:
+                    if len(p.cpu_burst_times) > 1:
+                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_ready_queue(ready)}]")
+                    else:
+                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_ready_queue(ready)}]")
 
-                print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
+                    print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
 
             time += tcs//2
         else:
@@ -157,21 +168,25 @@ def rr(original_processes, tcs, tslice):
                         heapq.heappop(all)
 
                         if not next_p.hasRunIO:
-                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                            if time < 10000:
+                                print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                             next_p.hasRunIO = True
                         else:
-                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                            if time < 10000:
+                                print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                             
                     else:
                         break
 
                 if (ready or cpu_runtime == 0):
                     break
-                print(f"time {time}ms: Time slice expired; no preemption because ready queue is empty [Q <empty>]")
+                if time < 10000:
+                    print(f"time {time}ms: Time slice expired; no preemption because ready queue is empty [Q <empty>]")
 
 
             if cpu_runtime > 0: 
-                print(f"time {time}ms: Time slice expired; preempting process {p.name} with {cpu_runtime}ms remaining [Q{print_ready_queue(ready)}]")
+                if time < 10000:
+                    print(f"time {time}ms: Time slice expired; preempting process {p.name} with {cpu_runtime}ms remaining [Q{print_ready_queue(ready)}]")
 
                 #This proc will be added to the the ready queue tcs//2 after preemption. Check special case where something arrives before then
 
@@ -192,10 +207,12 @@ def rr(original_processes, tcs, tslice):
                         heapq.heappop(all)
 
                         if not next_p.hasRunIO:
-                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
+                            if time < 10000:
+                                print(f"time {next_p.arrival_time}ms: Process {next_p.name} arrived; added to ready queue [Q{print_ready_queue(ready)}]")
                             next_p.hasRunIO = True
                         else:
-                            print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+                            if time < 10000:
+                                print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
                             
                     else:
                         break
@@ -214,19 +231,21 @@ def rr(original_processes, tcs, tslice):
 
 
                 elif not ready:
-                    if len(p.cpu_burst_times) > 1:
-                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
-                    else: 
-                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
+                    if time < 10000:
+                        if len(p.cpu_burst_times) > 1:
+                            print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q <empty>]")
+                        else: 
+                            print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q <empty>]")
 
-                    print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
+                        print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q <empty>]")
                 else:
-                    if len(p.cpu_burst_times) > 1:
-                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_ready_queue(ready)}]")
-                    else:
-                        print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_ready_queue(ready)}]")
+                    if time < 10000:
+                        if len(p.cpu_burst_times) > 1:
+                            print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} bursts to go [Q{print_ready_queue(ready)}]")
+                        else:
+                            print(f"time {time}ms: Process {p.name} completed a CPU burst; {len(p.cpu_burst_times)} burst to go [Q{print_ready_queue(ready)}]")
 
-                    print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
+                        print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_ready_queue(ready)}]")
 
             elif cpu_runtime == 0 and not p.cpu_burst_times:
                 if len(p.cpu_burst_times) == 0:

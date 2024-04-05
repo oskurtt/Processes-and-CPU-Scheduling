@@ -110,10 +110,10 @@ def main():
     print(f"\n<<< PROJECT PART II -- t_cs={tcs}ms; alpha={alpha:.2f}; t_slice={t_slice}ms >>>")
     fcfs(processes, tcs)
     print()
-    #sjf(processes, tcs, alpha, lamda)
+    sjf(processes, tcs, alpha, lamda)
     print()
-    #srt(processes, tcs, alpha, lamda)
-    # print()
+    srt(processes, tcs, alpha, lamda)
+    print()
     rr(processes, tcs, t_slice)
 
     
