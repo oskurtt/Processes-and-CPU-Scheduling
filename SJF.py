@@ -47,11 +47,50 @@ def sjf(original_processes, tcs, alpha, lamda):
                 p.hasRunIO = True
             else:
                 print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
-            #time += p.cpu_burst_times[0]            
+            #time += p.cpu_burst_times[0]  
+
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time <= time:
+                
+                #ready.append(next_p)
+                heapq.heappush(ready, (next_p.estimatedNext, next_p.name, next_p))
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    
+            else:
+                break          
 
         time += tcs//2
+
         #p = ready.popleft()
         _, _, p = heapq.heappop(ready)
+
+
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time <= time:
+                
+                #ready.append(next_p)
+                heapq.heappush(ready, (next_p.estimatedNext, next_p.name, next_p))
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    
+            else:
+                break
+
         cpu_runtime = p.cpu_burst_times.popleft()
         if not ready:
             print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q <empty>]")
@@ -77,7 +116,7 @@ def sjf(original_processes, tcs, alpha, lamda):
         while all:
             _, _, next_p = all[0]
     
-            if next_p.arrival_time < time:
+            if next_p.arrival_time <= time:
                 
                 #ready.append(next_p)
                 heapq.heappush(ready, (next_p.estimatedNext, next_p.name, next_p))
@@ -116,7 +155,7 @@ def sjf(original_processes, tcs, alpha, lamda):
             print(f"time {time}ms: Process {p.name} switching out of CPU; blocking on I/O until time {p.arrival_time}ms [Q{print_heapq_ready_queue(ready)}]")
         time += tcs//2
 
-    print(f"time {time}ms: Simulator ended for FCFS [Q <empty>]")
+    print(f"time {time}ms: Simulator ended for SJF [Q <empty>]")
 
     return time
 

@@ -33,6 +33,7 @@ def srt(original_processes, tcs, alpha, lamda):
     lastP = None
 
     while (all or ready):
+        #print("NEW ITERATION!!", time)
         #If running queue is empty:
             #Pop the next proccess and jump to that arrival time
         #Else, after finishing current process, pick next thing in waiting queue
@@ -52,6 +53,23 @@ def srt(original_processes, tcs, alpha, lamda):
             else:
                 print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
             
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time <= time:
+                
+                #ready.append(next_p)
+                heapq.heappush(ready, (next_p.estimatedNext, next_p.name, next_p))
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    
+            else:
+                break
 
         #p = ready.popleft()
 
@@ -61,7 +79,26 @@ def srt(original_processes, tcs, alpha, lamda):
 
         time += tcs//2
         start_time = time
+        #print("JUST TIME!!", time)
         _, _, p = heapq.heappop(ready)
+
+        while all:
+            _, _, next_p = all[0]
+        
+            if next_p.arrival_time < time:
+                
+                #ready.append(next_p)
+                heapq.heappush(ready, (next_p.estimatedNext, next_p.name, next_p))
+                heapq.heappop(all)
+
+                if not next_p.hasRunIO:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) arrived; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    next_p.hasRunIO = True
+                else:
+                    print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
+                    
+            else:
+                break
             
         cpu_runtime = p.cpu_burst_times.popleft()
         
@@ -78,6 +115,39 @@ def srt(original_processes, tcs, alpha, lamda):
         preemption = False
         p_remaining = cpu_runtime
 
+        #print("TIME DOWN HERE", time)
+
+        #Handle preemption DURING context switch: "will preempt"
+
+        if (ready and ready[0][2].estimatedNext-ready[0][2].time_elapsed < p.estimatedNext-p.time_elapsed):
+            #print("PREEMPTION DURING CONTEXT SWITCH!!!")
+            print(f"time {time}ms: Process {ready[0][2].name} (tau {ready[0][2].estimatedNext}ms) will preempt {p.name} [Q{print_heapq_ready_queue(ready)}]")
+
+            _, _, p_new = heapq.heappop(ready)
+            time += tcs
+            start_time = time
+            cpu_runtime = p_new.cpu_burst_times.popleft()
+            #print("JUST TIME!!", time)
+
+
+            ''' =============================== UNUSURE ABOUT THIS UPDATE CODE ======================='''
+            p.cpu_burst_times.insert(0, p_remaining) #add p_remaining as most recent element
+            #p.time_elapsed += time_elapsed
+            #print("TIME ELAPSED!",time_elapsed)
+            heapq.heappush(ready, (p.estimatedNext-p.time_elapsed, p.name, p))
+
+
+            p = p_new
+
+
+            if p.time_elapsed == 0:
+                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for {cpu_runtime}ms burst [Q{print_heapq_ready_queue(ready)}]")
+            else:
+                print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) started using the CPU for remaining {cpu_runtime}ms of {cpu_runtime+p.time_elapsed}ms burst [Q{print_heapq_ready_queue(ready)}]")
+
+
+
+
         while not preemption and p_remaining != 0:
 
             time = start_time + cpu_runtime
@@ -85,15 +155,16 @@ def srt(original_processes, tcs, alpha, lamda):
             if all:
                 time = min(start_time + cpu_runtime, all[0][2].arrival_time)
             
-
+            #print("Times ",time, start_time)
             time_elapsed = time - start_time
+            #print("After Time elapsed!!",time_elapsed)
             p_remaining = cpu_runtime - time_elapsed
 
             while all:
                 _, _, next_p = all[0]
                 
         
-                if next_p.arrival_time <= time:
+                if next_p.arrival_time <= time and p_remaining > 0:
                     
                     #ready.append(next_p)
                     heapq.heappush(ready, (next_p.estimatedNext, next_p.name, next_p))
@@ -101,7 +172,6 @@ def srt(original_processes, tcs, alpha, lamda):
 
                     #if (time == 141494):
                         #print(p.name, cpu_runtime, time_elapsed, p.time_elapsed)
-
 
                     if (ready and p.estimatedNext - time_elapsed - p.time_elapsed > ready[0][2].estimatedNext-ready[0][2].time_elapsed):
                         if not p.hasRunIO:
@@ -119,7 +189,15 @@ def srt(original_processes, tcs, alpha, lamda):
                 else:
                     break
 
-            if (ready and p.estimatedNext - time_elapsed - p.time_elapsed > ready[0][2].estimatedNext-ready[0][2].time_elapsed):
+            #print("CHECK FOR PREEMPTION!!!")
+
+            #if ready:
+                #print(p.estimatedNext, time_elapsed ,p.time_elapsed)
+                #print(ready[0][2].estimatedNext,ready[0][2].time_elapsed)
+            #else:
+                #print("Nothing to compare!!")
+
+            if (p_remaining > 0 and ready and p.estimatedNext - time_elapsed - p.time_elapsed > ready[0][2].estimatedNext-ready[0][2].time_elapsed):
                 #Premmption code
                 #print("PREEMPTION!!!")
                 #print(p.estimatedNext, time_elapsed)

@@ -9,11 +9,50 @@ def fcfs(original_processes, tcs):
     #Copy the processes:
     processes = copy_process_list(original_processes)
 
+    #statistics:
+
+    # average CPU burst times for both CPU and IO processes
+    average_burst_time = 0
+    average_io_burst_time = 0
+    average_cpu_burst_time = 0
+
+    average_wait_time = 0
+    average_io_wait_time = 0
+    average_cpu_wait_time = 0
+
+    average_turnaround_time = 0
+    average_io_turnaround_time = 0
+    average_cpu_turnaround_time = 0
+
+    cpu_context_switches = 0
+    io_context_switches = 0
+
+    io_preemptions = 0
+    cpu_preemptions = 0
+
+
     all = []
     ready = deque([])
 
+    all_bursts = []
+    cpu_bursts = []
+    io_bursts = []
+
     for p in processes:
         heapq.heappush(all, (p.arrival_time, p.name, p))
+        for burst_time in p.cpu_burst_times:
+            if p.is_cpu_intensive:
+                cpu_bursts.append(burst_time)
+            else:
+                io_bursts.append(burst_time)
+            all_bursts.append(burst_time)
+
+    average_wait_time = sum(all_bursts)/len(all_bursts)
+    average_io_wait_time = sum(io_bursts)/len(io_bursts)
+    average_cpu_wait_time = sum(cpu_bursts)/len(cpu_bursts)
+
+    print(average_wait_time, average_io_wait_time, average_cpu_wait_time)
+    assert(True==False)
         
     print("time 0ms: Simulator started for FCFS [Q <empty>]")
 
