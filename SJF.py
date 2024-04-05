@@ -65,9 +65,9 @@ def sjf(original_processes, tcs, alpha, lamda):
             #Add this process back to the all queue with updated arrival time
 
             #============== Added for SJF ================
-            old_tau = p.estimatedNext # (tau val)
+            old_tau = math.ceil(p.estimatedNext) # (tau val)
             c_alpha = struct.unpack("f", struct.pack("f",float(alpha)))[0]
-            p.estimatedNext = math.ceil(c_alpha * cpu_runtime + (1 - c_alpha) * old_tau)
+            p.estimatedNext = math.ceil(c_alpha * cpu_runtime + (1.0 - c_alpha) * old_tau)
             #=============================================
 
             p.arrival_time = time + p.io_burst_times.popleft()+tcs//2

@@ -100,4 +100,65 @@ def print_heapq_ready_queue(q: List[Process]):
 
 
 
+def print_stats(algorithm_name, cpu_util, avg_burst_time_num, avg_burst_time_denom, avg_wait_time_num, avg_wait_time_denom,avg_turn_time_num, avg_turn_time_denom, num_context_switches, num_prem):
+
+    print(f"Algorithm {algorithm_name}")
+    print(f"-- CPU utilization: {:.3f}%".formate(cpu_util))
+    print(f"-- average CPU burst time: {:.3f} ms ({:3f} ms/{:.3f} ms)".format(avg_burst_time_num/avg_burst_time_denom, avg_burst_time_num, avg_burst_time_denom))
+    print(f"-- average wait time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(avg_wait_time_num/avg_wait_time_denom, avg_wait_time_num, avg_wait_time_denom))
+    print("-- average turnaround time: {:.3f} ms ({:.3f} ms/{:.3f} ms)".format(avg_turn_time_num/avg_turn_time_denom, avg_turn_time_num, avg_turn_time_denom))
+
+    
+
+# -- number of context switches: 89 (60/29)
+# -- number of preemptions: 0 (0/0)
+
+
+
+
+
+def calculate_statistics():
+
+
+
+
+    """
+    Algorithm FCFS
+-- CPU utilization: 84.253%
+-- average CPU burst time: 3067.776 ms (4071.000 ms/992.138 ms)
+-- average wait time: 779.663 ms (217.284 ms/1943.207 ms)
+-- average turnaround time: 3851.439 ms (4292.284 ms/2939.345 ms)
+-- number of context switches: 89 (60/29)
+-- number of preemptions: 0 (0/0)
+
+Algorithm SJF
+-- CPU utilization: 84.062%
+-- average CPU burst time: 3067.776 ms (4071.000 ms/992.138 ms)
+-- average wait time: 804.540 ms (229.584 ms/1994.104 ms)
+-- average turnaround time: 3876.315 ms (4304.584 ms/2990.242 ms)
+-- number of context switches: 89 (60/29)
+-- number of preemptions: 0 (0/0)
+
+Algorithm SRT
+-- CPU utilization: 83.112%
+-- average CPU burst time: 3067.776 ms (4071.000 ms/992.138 ms)
+-- average wait time: 542.686 ms (290.800 ms/1063.828 ms)
+-- average turnaround time: 3614.911 ms (4366.467 ms/2059.966 ms)
+-- number of context switches: 99 (70/29)
+-- number of preemptions: 10 (10/0)
+
+Algorithm RR
+-- CPU utilization: 81.436%
+-- average CPU burst time: 3067.776 ms (4071.000 ms/992.138 ms)
+-- average wait time: 588.686 ms (398.067 ms/983.069 ms)
+-- average turnaround time: 3668.236 ms (4479.134 ms/1990.518 ms)
+-- number of context switches: 262 (151/111)
+-- number of preemptions: 173 (91/82)
+
+
+    """
+
+
+
+
     
