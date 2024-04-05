@@ -3,7 +3,6 @@ import heapq
 from collections import deque
 
 
-
 def rr(original_processes, tcs, tslice):
     time = 0
     processes = copy_process_list(original_processes)

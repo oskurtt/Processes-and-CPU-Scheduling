@@ -162,10 +162,7 @@ def srt(original_processes, tcs, alpha, lamda):
 
             while all:
                 _, _, next_p = all[0]
-                
-        
-                if next_p.arrival_time <= time and p_remaining > 0:
-                    
+                if next_p.arrival_time <= time and p_remaining > 0:                    
                     #ready.append(next_p)
                     heapq.heappush(ready, (next_p.estimatedNext, next_p.name, next_p))
                     heapq.heappop(all)
@@ -227,7 +224,7 @@ def srt(original_processes, tcs, alpha, lamda):
                 old_tau = p.estimatedNext # (tau val)
                 c_alpha = struct.unpack("f", struct.pack("f",float(alpha)))[0]
                 #print(cpu_runtime, p.time_elapsed)
-                p.estimatedNext = math.ceil(c_alpha * (cpu_runtime + p.time_elapsed) + (1 - c_alpha) * old_tau)
+                p.estimatedNext = (c_alpha * (cpu_runtime + p.time_elapsed) + (1 - c_alpha) * old_tau)
                 #=============================================
 
                 p.time_elapsed = 0
