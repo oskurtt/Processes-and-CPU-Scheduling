@@ -1,4 +1,4 @@
-from utils import copy_process_list, print_heapq_ready_queue, Stats
+from utils import copy_process_list, print_heapq_ready_queue, Stats, get_avg, get_three_digit_floot
 import heapq
 from collections import deque
 import math
@@ -38,20 +38,34 @@ def sjf(original_processes, tcs, alpha, lamda):
             else:
                 io_bursts.append(burst_time)
             all_bursts.append(burst_time)
+
     try:
-        stats.cpu_burst_time.append(sum(all_bursts)/len(all_bursts))
+        stats.cpu_burst_time.append(math.ceil(sum(all_bursts)/len(all_bursts)*1000)/1000)
     except:
         stats.cpu_burst_time.append(0)
 
     try:
-        stats.cpu_burst_time.append(sum(io_bursts)/len(io_bursts))
+        stats.cpu_burst_time.append(math.ceil(sum(io_bursts)/len(io_bursts)*1000)/1000)
     except:
         stats.cpu_burst_time.append(0)
 
     try:
-        stats.cpu_burst_time.append(sum(cpu_bursts)/len(cpu_bursts))
+        stats.cpu_burst_time.append(math.ceil(sum(cpu_bursts)/len(cpu_bursts)*1000)/1000)
     except:
         stats.cpu_burst_time.append(0)
+
+    all_wait_times = {}
+    cpu_wait_times = {}
+    io_wait_times = {}
+
+    for p in processes:
+        if p.is_cpu_intensive:
+            cpu_wait_times[p.name] = []
+        else:
+            io_wait_times[p.name] = []
+        all_wait_times[p.name] = []
+
+
     time = 0
     #Copy the processes:
     processes = copy_process_list(original_processes)
@@ -89,7 +103,13 @@ def sjf(original_processes, tcs, alpha, lamda):
             else:
                 if time < 10000:
                     print(f"time {time}ms: Process {p.name} (tau {p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
-            #time += p.cpu_burst_times[0]  
+            #time += p.cpu_burst_times[0]
+
+            all_wait_times[p.name].append(time)
+            if (p.is_cpu_intensive):
+                cpu_wait_times[p.name].append(time)
+            else:
+                io_wait_times[p.name].append(time)
 
         while all:
             _, _, next_p = all[0]
@@ -108,18 +128,24 @@ def sjf(original_processes, tcs, alpha, lamda):
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                     
+                all_wait_times[next_p.name].append(next_p.arrival_time)
+                if (next_p.is_cpu_intensive):
+                    cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                else:
+                    io_wait_times[next_p.name].append(next_p.arrival_time)
+
             else:
                 break          
 
         time += tcs//2
-        if p.is_cpu_intensive:
-            stats.num_context_switches[1] += 1
-        else:
-            stats.num_context_switches[2] += 1
-        stats.num_context_switches[0] += 1
         #p = ready.popleft()
         _, _, p = heapq.heappop(ready)
 
+        if p.is_cpu_intensive:
+            stats.num_context_switches[2] += 1
+        else:
+            stats.num_context_switches[1] += 1
+        stats.num_context_switches[0] += 1
 
         while all:
             _, _, next_p = all[0]
@@ -138,8 +164,20 @@ def sjf(original_processes, tcs, alpha, lamda):
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                     
+                all_wait_times[next_p.name].append(next_p.arrival_time)
+                if (next_p.is_cpu_intensive):
+                    cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                else:
+                    io_wait_times[next_p.name].append(next_p.arrival_time)
+
             else:
                 break
+
+        all_wait_times[p.name].append(time-tcs//2)
+        if (p.is_cpu_intensive):
+            cpu_wait_times[p.name].append(time-tcs//2)
+        else:
+            io_wait_times[p.name].append(time-tcs//2)
 
         cpu_runtime = p.cpu_burst_times.popleft()
         if not ready:
@@ -182,6 +220,12 @@ def sjf(original_processes, tcs, alpha, lamda):
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} (tau {next_p.estimatedNext}ms) completed I/O; added to ready queue [Q{print_heapq_ready_queue(ready)}]")
                     
+                all_wait_times[next_p.name].append(next_p.arrival_time)
+                if (next_p.is_cpu_intensive):
+                    cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                else:
+                    io_wait_times[next_p.name].append(next_p.arrival_time)
+
             else:
                 break
 
@@ -216,6 +260,20 @@ def sjf(original_processes, tcs, alpha, lamda):
         time += tcs//2
 
     print(f"time {time}ms: Simulator ended for SJF [Q <empty>]")
+
+    try:
+        stats.cpu_util = math.ceil((sum(all_bursts)/time)*100*1000)/1000
+    except:
+        stats.cpu_util = 0
+
+    stats.avg_wait_time[0] = get_avg(all_wait_times, len(all_bursts))
+    stats.avg_wait_time[1] = get_avg(io_wait_times, len(io_bursts))
+    stats.avg_wait_time[2] = get_avg(cpu_wait_times, len(cpu_bursts))
+
+    stats.avg_turn_time[0] = stats.avg_wait_time[0] + tcs + stats.cpu_burst_time[0]
+    stats.avg_turn_time[1] = stats.avg_wait_time[1] + tcs + stats.cpu_burst_time[1]
+    stats.avg_turn_time[2] = stats.avg_wait_time[2] + tcs + stats.cpu_burst_time[2]
+
     return stats
 
 

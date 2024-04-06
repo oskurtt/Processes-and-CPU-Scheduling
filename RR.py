@@ -1,7 +1,7 @@
-from utils import copy_process_list, print_ready_queue, Stats
+from utils import copy_process_list, print_ready_queue, Stats, get_avg
 import heapq
 from collections import deque
-
+import math
 
 def rr(original_processes, tcs, tslice):
     
@@ -32,19 +32,33 @@ def rr(original_processes, tcs, tslice):
                 io_bursts.append(burst_time)
             all_bursts.append(burst_time)
     try:
-        stats.cpu_burst_times.append(sum(all_bursts)/len(all_bursts))
+        stats.cpu_burst_time.append(math.ceil(sum(all_bursts)/len(all_bursts)*1000)/1000)
     except:
-        stats.cpu_burst_times.append(0)
+        stats.cpu_burst_time.append(0)
 
     try:
-        stats.cpu_burst_times.append(sum(io_bursts)/len(io_bursts))
+        stats.cpu_burst_time.append(math.ceil(sum(io_bursts)/len(io_bursts)*1000)/1000)
     except:
-        stats.cpu_burst_times.append(0)
+        stats.cpu_burst_time.append(0)
 
     try:
-        stats.cpu_burst_times.append(sum(cpu_bursts)/len(cpu_bursts))
+        stats.cpu_burst_time.append(math.ceil(sum(cpu_bursts)/len(cpu_bursts)*1000)/1000)
     except:
-        stats.cpu_burst_times.append(0)
+        stats.cpu_burst_time.append(0)
+
+
+    all_wait_times = {}
+    cpu_wait_times = {}
+    io_wait_times = {}
+
+    for p in processes:
+        if p.is_cpu_intensive:
+            cpu_wait_times[p.name] = []
+        else:
+            io_wait_times[p.name] = []
+        all_wait_times[p.name] = []
+
+
 
     time = 0
     processes = copy_process_list(original_processes)
@@ -74,6 +88,12 @@ def rr(original_processes, tcs, tslice):
                 if time < 10000:
                     print(f"time {time}ms: Process {p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
 
+            all_wait_times[p.name].append(time)
+            if (p.is_cpu_intensive):
+                cpu_wait_times[p.name].append(time)
+            else:
+                io_wait_times[p.name].append(time)
+
 
         while all:
             _, _, next_p = all[0]
@@ -90,6 +110,12 @@ def rr(original_processes, tcs, tslice):
                 else:
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+
+                all_wait_times[next_p.name].append(next_p.arrival_time)
+                if (next_p.is_cpu_intensive):
+                    cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                else:
+                    io_wait_times[next_p.name].append(next_p.arrival_time)
                     
             else:
                 break
@@ -98,6 +124,12 @@ def rr(original_processes, tcs, tslice):
         time += tcs//2
         preemption_time = time + tslice
         cpu_runtime = p.cpu_burst_times.popleft()
+
+        if p.is_cpu_intensive:
+            stats.num_context_switches[2] += 1
+        else:
+            stats.num_context_switches[1] += 1
+        stats.num_context_switches[0] += 1
 
         while all:
             _, _, next_p = all[0]
@@ -114,9 +146,21 @@ def rr(original_processes, tcs, tslice):
                 else:
                     if next_p.arrival_time < 10000:
                         print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+
+                all_wait_times[next_p.name].append(next_p.arrival_time)
+                if (next_p.is_cpu_intensive):
+                    cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                else:
+                    io_wait_times[next_p.name].append(next_p.arrival_time)
                     
             else:
                 break
+
+        all_wait_times[p.name].append(time-tcs//2)
+        if (p.is_cpu_intensive):
+            cpu_wait_times[p.name].append(time-tcs//2)
+        else:
+            io_wait_times[p.name].append(time-tcs//2)
 
         if time < 10000:
             if p.time_elapsed == 0:
@@ -159,6 +203,12 @@ def rr(original_processes, tcs, tslice):
                     else:
                         if time < 10000:
                             print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+
+                    all_wait_times[next_p.name].append(next_p.arrival_time)
+                    if (next_p.is_cpu_intensive):
+                        cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                    else:
+                        io_wait_times[next_p.name].append(next_p.arrival_time)
                         
                 else:
                     break
@@ -216,6 +266,12 @@ def rr(original_processes, tcs, tslice):
                         else:
                             if time < 10000:
                                 print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+
+                        all_wait_times[next_p.name].append(next_p.arrival_time)
+                        if (next_p.is_cpu_intensive):
+                            cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                        else:
+                            io_wait_times[next_p.name].append(next_p.arrival_time)
                             
                     else:
                         break
@@ -229,6 +285,12 @@ def rr(original_processes, tcs, tslice):
             if cpu_runtime > 0: 
                 if time < 10000:
                     print(f"time {time}ms: Time slice expired; preempting process {p.name} with {cpu_runtime}ms remaining [Q{print_ready_queue(ready)}]")
+
+                if p.is_cpu_intensive:
+                    stats.num_prem[2]+=1
+                else:
+                    stats.num_prem[1]+=1
+                stats.num_prem[0]+=1
 
                 #This proc will be added to the the ready queue tcs//2 after preemption. Check special case where something arrives before then
 
@@ -255,12 +317,25 @@ def rr(original_processes, tcs, tslice):
                         else:
                             if time < 10000:
                                 print(f"time {next_p.arrival_time}ms: Process {next_p.name} completed I/O; added to ready queue [Q{print_ready_queue(ready)}]")
+
+                        all_wait_times[next_p.name].append(next_p.arrival_time)
+                        if (next_p.is_cpu_intensive):
+                            cpu_wait_times[next_p.name].append(next_p.arrival_time)
+                        else:
+                            io_wait_times[next_p.name].append(next_p.arrival_time)
                             
                     else:
                         break
 
                 p.cpu_burst_times.appendleft(cpu_runtime)
                 ready.append(p)
+
+                all_wait_times[p.name].append(time+tcs//2)
+                if (p.is_cpu_intensive):
+                    cpu_wait_times[p.name].append(time+tcs//2)
+                else:
+                    io_wait_times[p.name].append(time+tcs//2)
+
             elif cpu_runtime == 0 and p.cpu_burst_times:
                 p.time_elapsed = 0
                 p.arrival_time = time + p.io_burst_times.popleft()+tcs//2
@@ -300,6 +375,20 @@ def rr(original_processes, tcs, tslice):
 
 
     print(f"time {time}ms: Simulator ended for RR [Q <empty>]", end='')
+
+    try:
+        stats.cpu_util = math.ceil((sum(all_bursts)/time)*100*1000)/1000
+    except:
+        stats.cpu_util = 0
+
+    stats.avg_wait_time[0] = get_avg(all_wait_times, len(all_bursts))
+    stats.avg_wait_time[1] = get_avg(io_wait_times, len(io_bursts))
+    stats.avg_wait_time[2] = get_avg(cpu_wait_times, len(cpu_bursts))
+
+    stats.avg_turn_time[0] = stats.avg_wait_time[0] + tcs*(stats.num_context_switches[0]/len(all_bursts)) + stats.cpu_burst_time[0]
+    stats.avg_turn_time[1] = stats.avg_wait_time[1] + tcs*(stats.num_context_switches[1]/len(io_bursts)) + stats.cpu_burst_time[1]
+    stats.avg_turn_time[2] = stats.avg_wait_time[2] + tcs*(stats.num_context_switches[2]/len(cpu_bursts)) + stats.cpu_burst_time[2]
+
 
     return stats
 

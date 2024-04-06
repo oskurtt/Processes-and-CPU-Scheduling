@@ -1,6 +1,7 @@
 from collections import deque
 from typing import List
 import heapq
+import math
 
 
 class Rand48(object):
@@ -64,32 +65,52 @@ class Process:
         return p
 
 
+def get_three_digit_floot(num):
+    return math.ceil(num*1000)/1000
+
 class Stats:
 
-    def __init__(self, algorithm = "", cpu_util = 0.0, cpu_burst_time = [], avg_wait_time = [0, 0, 0], avg_turn_time = [0, 0, 0], num_context_switches = [0, 0, 0], num_prem = [0,0,0]):
-
+    def __init__(self, algorithm="", cpu_util=0.0):
         self.algorithm = algorithm
         self.cpu_util = cpu_util
-        self.cpu_burst_time = cpu_burst_time
-        self.avg_wait_time = avg_wait_time
-        self.avg_turn_time = avg_turn_time
-        self.num_context_switches = num_context_switches
-        self.num_prem = num_prem
+        self.cpu_burst_time = []
+        self.avg_wait_time = [0, 0, 0]
+        self.avg_turn_time = [0, 0, 0]
+        self.num_context_switches = [0, 0, 0]
+        self.num_prem = [0, 0, 0]
 
     def get_as_string(self):
         result = ""
         result += f"Algorithm {self.algorithm}\n"
-        result += "-- CPU utilization: {:.3f}%\n".format(self.cpu_util)
-        result += "-- average CPU burst time: {:.3f} ms ({:.3f} ms/{:.3f} ms)\n".format(self.cpu_burst_time[0], self.cpu_burst_time[1], self.cpu_burst_time[2])
-        result += "-- average wait time: {:.3f} ms ({:.3f} ms/{:.3f} ms)\n".format(self.avg_wait_time[0], self.avg_wait_time[1], self.avg_wait_time[2])
-        result += "-- average turnaround time: {:.3f} ms ({:.3f} ms/{:.3f} ms)\n".format(self.avg_turn_time[0], self.avg_turn_time[1], self.avg_turn_time[2])
+        result += "-- CPU utilization: {:.3f}%\n".format(get_three_digit_floot(self.cpu_util))
+        result += "-- average CPU burst time: {:.3f} ms ({:.3f} ms/{:.3f} ms)\n".format(get_three_digit_floot(self.cpu_burst_time[0]), get_three_digit_floot(self.cpu_burst_time[1]), get_three_digit_floot(self.cpu_burst_time[2]))
+        result += "-- average wait time: {:.3f} ms ({:.3f} ms/{:.3f} ms)\n".format(get_three_digit_floot(self.avg_wait_time[0]), get_three_digit_floot(self.avg_wait_time[1]), get_three_digit_floot(self.avg_wait_time[2]))
+        result += "-- average turnaround time: {:.3f} ms ({:.3f} ms/{:.3f} ms)\n".format(get_three_digit_floot(self.avg_turn_time[0]), get_three_digit_floot(self.avg_turn_time[1]), get_three_digit_floot(self.avg_turn_time[2]))
         result += f"-- number of context switches: {self.num_context_switches[0]} ({self.num_context_switches[1]}/{self.num_context_switches[2]})\n"
-        result += f"-- number of preemptions: {self.num_prem} ({self.num_prem[1]}/{self.num_prem[2]})\n"
+        result += f"-- number of preemptions: {self.num_prem[0]} ({self.num_prem[1]}/{self.num_prem[2]})\n"
         return result
 
     
 
+def get_avg(input_dict, denom):
+    total_bursts = denom
+    total_duration = 0
 
+    for bursts in input_dict.values():
+        # Extract bursts for each process
+        process_bursts = [bursts[i:i+2] for i in range(0, len(bursts), 2)]
+
+        # Calculate total bursts and total duration for the process
+        total_duration += sum(end - start for start, end in process_bursts)
+
+    # Calculate the average burst duration across all processes
+    if total_bursts != 0:
+        average_burst_duration = total_duration / total_bursts
+    else:
+        average_burst_duration = 0  # Avoid division by zero if there are no bursts
+
+    #print(total_bursts)
+    return average_burst_duration
 
 
 def copy_process_list(process_list):
